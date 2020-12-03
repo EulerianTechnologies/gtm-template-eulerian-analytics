@@ -5,8 +5,8 @@ Template Gallery Developer Terms of Service available at
 https://developers.google.com/tag-manager/gallery-tos (or such other URL as
 Google may provide), as modified from time to time.
 
- 
- ___INFO___
+
+___INFO___
 
 {
   "type": "TAG",
@@ -161,7 +161,7 @@ ___TEMPLATE_PARAMETERS___
                     "errorMessage": "this value must be a number"
                   }
                 ],
-                "help": "Si vide, le \u003cb\u003emontant de la transaction\u003c/b\u003e vaut 1."
+                "help": "If empty,, le \u003cb\u003etransaction amount\u003c/b\u003e vaut 1."
               },
               {
                 "type": "CHECKBOX",
@@ -309,15 +309,15 @@ ___TEMPLATE_PARAMETERS___
                     "selectItems": [
                       {
                         "value": "automatic",
-                        "displayValue": "Lire les paramètres personnalisés provenant d\u0027une variable"
+                        "displayValue": "get custom parameters from a variable"
                       },
                       {
                         "value": "manual",
-                        "displayValue": "Ajouter manuellement les paramètres personnalisés"
+                        "displayValue": "manually add custom parameters to collect"
                       }
                     ],
                     "simpleValueType": true,
-                    "notSetText": "Non"
+                    "notSetText": "False"
                   },
                   {
                     "type": "SIMPLE_TABLE",
@@ -326,14 +326,14 @@ ___TEMPLATE_PARAMETERS___
                     "simpleTableColumns": [
                       {
                         "defaultValue": "",
-                        "displayName": "Paramètre Personnalisé",
+                        "displayName": "Custom Parameter",
                         "name": "parameter",
                         "type": "TEXT",
                         "isUnique": true
                       },
                       {
                         "defaultValue": "",
-                        "displayName": "Valeur du Paramètre Personnalisé",
+                        "displayName": "Custom Parameter Value",
                         "name": "value",
                         "type": "TEXT"
                       }
@@ -345,7 +345,7 @@ ___TEMPLATE_PARAMETERS___
                         "type": "EQUALS"
                       }
                     ],
-                    "newRowButtonText": "Ajouter un paramètre personnalisé",
+                    "newRowButtonText": "Add a Custom Parameter",
                     "valueValidators": [
                       {
                         "type": "NON_EMPTY"
@@ -355,11 +355,11 @@ ___TEMPLATE_PARAMETERS___
                   {
                     "type": "SELECT",
                     "name": "customParams_jsObjVariable",
-                    "displayName": "Variable Tableau JS",
+                    "displayName": "JS Variable",
                     "macrosInSelect": true,
                     "selectItems": [],
                     "simpleValueType": true,
-                    "notSetText": "-- Non défini --",
+                    "notSetText": "-- not defined --",
                     "enablingConditions": [
                       {
                         "paramName": "customParamsMode",
@@ -540,7 +540,7 @@ ___TEMPLATE_PARAMETERS___
                   {
                     "type": "PARAM_TABLE",
                     "name": "offer_SimpleTable",
-                    "displayName": "Charger la donnée Produit en fixe ou par une variable GTM",
+                    "displayName": "Choose GTM Variables or fixed values to prepare your product data",
                     "paramTableColumns": [
                       {
                         "param": {
@@ -1216,9 +1216,19 @@ if (data.type == "order" || data.type == "lead") {
   }
 
   //conversion parameters - automatic variable js
-  if(data.customParams_jsObjVariable) params = params.concat(
-    (getType(data.customParams_jsObjVariable) == "array" & data.customParams_jsObjVariable.length %2 == 0 ? data.customParams_jsObjVariable  : "")
-  );
+  if(data.customParams_jsObjVariable) {
+      if(getType(data.customParams_jsObjVariable) == "object") {
+          data.customParams_jsObjVariable = [data.customParams_jsObjVariable];
+        }
+      if (getType(data.customParams_jsObjVariable) == "array"){
+        if(getType(data.customParams_jsObjVariable[0]) == "object") {
+            params = params.concat(JSON.parse(JSON.stringify(data.customParams_jsObjVariable).split(":").join(",").split("{").join("").split("}").join("")));
+        }
+        else if(getType(data.customParams_jsObjVariable[0]) != "array" && (data.customParams_jsObjVariable.length %2) == 0) {
+            params = params.concat(data.customParams_jsObjVariable);
+        }
+      }
+    }
 }
 
 // search type
@@ -1469,6 +1479,6 @@ setup: ''
 
 ___NOTES___
 
-Created on 02/12/2020 à 20:56:46
+Created on 03/12/2020 à 14:05:46
 
 
