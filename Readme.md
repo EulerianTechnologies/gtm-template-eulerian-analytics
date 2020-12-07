@@ -1,4 +1,4 @@
-# Eulerian nalytics Tracking
+# Eulerian Analytics Tracking
 
 ## Description
 
