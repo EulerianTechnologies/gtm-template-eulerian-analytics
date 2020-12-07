@@ -1,16 +1,14 @@
-
-
-# Eulerian IO Tracking
+# Eulerian Analytics Tracking
 
 ## Description
 
-This Google Tag Manager Community template is available for the Eulerian.IO attribution service provided by Eulerian Technologies SAS (https://eulerian.com)
+This Google Tag Manager Community template is available for the Eulerian Analytics attribution & data activation solution provided by Eulerian Technologies SAS (https://eulerian.com)
 
 ## Getting Started
 
-* Register for free at https://eulerian.io
+* Register through an account representative at https://eulerian.com
 * Create a new subdomain on your DNS Provider following our instructions (recommended)
-* The Eulerian IO tag template allow you to install up to 3 different tags:
+* The Eulerian Analytics tag template allow you to install up to 3 different tags:
 
 ### Page view
 This call is trigered during web page loading or following specific actions. Use this tag to measure metrics associated to visitor's navigation on your website like : number of visits, bounce rate, time spent on site...
@@ -30,8 +28,7 @@ You can exclude the page view tag triggering on your confirmation page in order 
 ## Documentation
 
 ### Eulerian Tracking Domain
-Copy-paste your custom subdomain (e.g. 12345.mydomain.com) if you are installing Eulerian IO directly on your web domain.
-If not, select your datacenter region (North America or Europe) to automatically connect to the correct Eulerian Server Domain.
+Copy-paste your custom subdomain (e.g. 12345.mydomain.com) if you are installing Eulerian Analytics directly on your web domain.
 
 ### Page Paths and Page Names
 You can set this to a specific string, but it is recommended to either use URL path or custom pagenames when tracking across multiple pages. Set the page path rewriting if you need to clean your website's url structure.
