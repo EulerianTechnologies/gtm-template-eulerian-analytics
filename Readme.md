@@ -2,7 +2,7 @@
 
 ## Description
 
-This Google Tag Manager Community template is available for the Eulerian Analytics attribution service provided by Eulerian Technologies SAS (https://eulerian.com)
+This Google Tag Manager Community template is available for the Eulerian Analytics attribution & data activation solution provided by Eulerian Technologies SAS (https://eulerian.com)
 
 ## Getting Started
 
