@@ -1160,6 +1160,7 @@ const getTimestamp = require('getTimestamp');
 const makeTableMap = require('makeTableMap');
 const getType = require('getType');
 const JSON = require('JSON');
+const encodeUri = require('encodeUri');
 
 
 function isHexa(el,nb){
@@ -1349,8 +1350,7 @@ function call(){
   data.gtmOnSuccess();
 }
 
-
-const url = 'https://'+ trackingDomain +'/ea.js';
+const url = 'https://'+ encodeUri(trackingDomain) +'/ea.js';
 if(data.debug_mode)log("params",params);
 injectScript(url, call, data.gtmOnFailure, url);
 
