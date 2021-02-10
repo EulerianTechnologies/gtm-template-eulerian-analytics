@@ -54,7 +54,7 @@ ___TEMPLATE_PARAMETERS___
             "enablingConditions": []
           }
         ],
-        "help": "This is the URL where the data requests will be sent",
+        "help": "This is the URL where the data requests will be sent.\u003cbr/\u003e\u003cbr/\u003eIf you are \u003cb\u003einstalling Eulerian on your domain\u003c/b\u003e (First-Party mode), make sure that your domain name is whitelisted in the \u003cb\u003eTemplate Permissions configuration\u003c/b\u003e (\u003cem\u003eGTM Template menu \u003e Eulerian Analytics \u003e Permission tab \u003e Script Inject\u003c/em\u003e)",
         "valueHint": "e.g. subdomain.domain.com",
         "enablingConditions": [],
         "alwaysInSummary": true
@@ -128,7 +128,7 @@ ___TEMPLATE_PARAMETERS___
                   }
                 ],
                 "alwaysInSummary": true,
-                "help": "Si vide, l\u0027\u003cb\u003eID Conversion\u003c/b\u003e est généré automatiquement."
+                "help": "\u003cb\u003eConversion ID\u003c/b\u003e is automatically generated if this field is empty"
               },
               {
                 "type": "TEXT",
@@ -161,7 +161,7 @@ ___TEMPLATE_PARAMETERS___
                     "errorMessage": "this value must be a number"
                   }
                 ],
-                "help": "If empty,, le \u003cb\u003etransaction amount\u003c/b\u003e vaut 1."
+                "help": "\u003cb\u003etransaction amount\u003c/b\u003e set to 1 as a default value if this field is empty"
               },
               {
                 "type": "CHECKBOX",
@@ -721,15 +721,37 @@ ___TEMPLATE_PARAMETERS___
                             ]
                           },
                           {
+                            "defaultValue": "dyn_val",
+                            "displayName": "Mapping Type",
+                            "name": "match_mode_val",
+                            "type": "SELECT",
+                            "valueValidators": [
+                              {
+                                "type": "NON_EMPTY"
+                              }
+                            ],
+                            "selectItems": [
+                              {
+                                "value": "dyn_val",
+                                "displayValue": "Dynamic - JS Object key"
+                              },
+                              {
+                                "value": "fix_val",
+                                "displayValue": "Static - Fixed value"
+                              }
+                            ]
+                          },
+                          {
                             "defaultValue": "",
-                            "displayName": "JS object key-target",
+                            "displayName": "Value",
                             "name": "js_key_target",
                             "type": "TEXT",
                             "valueValidators": [
                               {
                                 "type": "NON_EMPTY"
                               }
-                            ]
+                            ],
+                            "valueHint": "set JS Obj key if dynamic"
                           }
                         ],
                         "enablingConditions": [
@@ -986,7 +1008,7 @@ ___TEMPLATE_PARAMETERS___
                     "name": "engmtProfile",
                     "displayName": "engagement profile",
                     "simpleValueType": true,
-                    "help": "",
+                    "help": "e.g. \"visitor\", \"looker\", \"shopper\", \"buyer\"",
                     "alwaysInSummary": false
                   },
                   {
@@ -1127,17 +1149,45 @@ ___TEMPLATE_PARAMETERS___
                 "help": "advanced: a misconfiguration may have unwanted effects on your data collection"
               },
               {
+                "type": "CHECKBOX",
+                "name": "debug_mode",
+                "checkboxText": "debug mode : Log debug messages in the web console",
+                "simpleValueType": true,
+                "help": "display messages in the web console"
+              },
+              {
+                "type": "SIMPLE_TABLE",
+                "name": "custom_advanced_params",
+                "displayName": "Expert",
+                "simpleTableColumns": [
+                  {
+                    "defaultValue": "",
+                    "displayName": "Custom Advanced Parameter",
+                    "name": "cust_adv_parameter",
+                    "type": "TEXT",
+                    "isUnique": true,
+                    "valueValidators": [
+                      {
+                        "type": "NON_EMPTY"
+                      }
+                    ],
+                    "valueHint": ""
+                  },
+                  {
+                    "defaultValue": "",
+                    "displayName": "Custom Advanced Value",
+                    "name": "cust_adv_value",
+                    "type": "TEXT"
+                  }
+                ],
+                "newRowButtonText": "add a custom advanced parameter",
+                "help": "Only use it when you know what you are doing"
+              },
+              {
                 "type": "TEXT",
                 "name": "from",
                 "displayName": "Eulerian site",
                 "simpleValueType": true
-              },
-              {
-                "type": "CHECKBOX",
-                "name": "debug_mode",
-                "checkboxText": "debug mode",
-                "simpleValueType": true,
-                "help": "display messages in the web console"
               }
             ]
           }
@@ -1150,11 +1200,17 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
-const log = require('logToConsole');
-if(data.debug_mode)log("EA - Debug mode Activated");
-if(data.debug_mode)log('data =', data);
+const logToConsole = require('logToConsole');
+
+const log = data.debug_mode ? logToConsole : (() => {});
+
+log('(Tag ID ',data.gtmTagId,') EA - Debug mode Activated');
+log('(Tag ID ',data.gtmTagId,') Data Provided via this tag:', data);
+
+
 
 const injectScript = require('injectScript');
+const queryPermission = require('queryPermission');
 const callInWindow = require('callInWindow'); // Call function in window api
 const getTimestamp = require('getTimestamp');
 const makeTableMap = require('makeTableMap');
@@ -1186,7 +1242,7 @@ const trackingDomain = data.trackingDomain;
 // initialize @params with a prebuilt custom variable
 var params = data.advancedConfiguration || [];
 
-if(data.disable_pageview) params.push("enotagdt", "1");
+if(data.disable_pageview) params.push("enopagedt", "1");
 if(data.disable_activation) params.push("enoetm", "1");
 
 // cart type
@@ -1218,18 +1274,18 @@ if (data.type == "order" || data.type == "lead") {
 
   //conversion parameters - automatic variable js
   if(data.customParams_jsObjVariable) {
-      if(getType(data.customParams_jsObjVariable) == "object") {
-          data.customParams_jsObjVariable = [data.customParams_jsObjVariable];
-        }
-      if (getType(data.customParams_jsObjVariable) == "array"){
-        if(getType(data.customParams_jsObjVariable[0]) == "object") {
-            params = params.concat(JSON.parse(JSON.stringify(data.customParams_jsObjVariable).split(":").join(",").split("{").join("").split("}").join("")));
-        }
-        else if(getType(data.customParams_jsObjVariable[0]) != "array" && (data.customParams_jsObjVariable.length %2) == 0) {
-            params = params.concat(data.customParams_jsObjVariable);
-        }
+    if(getType(data.customParams_jsObjVariable) == "object") {
+      data.customParams_jsObjVariable = [data.customParams_jsObjVariable];
+    }
+    if (getType(data.customParams_jsObjVariable) == "array"){
+      if(getType(data.customParams_jsObjVariable[0]) == "object") {
+        params = params.concat(JSON.parse(JSON.stringify(data.customParams_jsObjVariable).split(":").join(",").split("{").join("").split("}").join("")));
+      }
+      else if(getType(data.customParams_jsObjVariable[0]) != "array" && (data.customParams_jsObjVariable.length %2) == 0) {
+        params = params.concat(data.customParams_jsObjVariable);
       }
     }
+  }
 }
 
 // search type
@@ -1267,8 +1323,8 @@ if(data.offer_SimpleTable){
     if(a.prd_category) params.push("prdgroup",a.prd_category);
     if(a.prd_brand) params.push("prdparam-brand",a.prd_brand);
     if(a.prd_variant) params.push("prdparam-variant",a.prd_variant);
-});
-                                  }
+  });
+}
 
 
 // Product/cart/order type - automatic js variable
@@ -1276,26 +1332,32 @@ if(data.productdataMode == "automatic" ||data.offerDataMode == "automatic"){
   if(getType(data.jsObjVariable) == "object") data.jsObjVariable = [data.jsObjVariable];
   if(getType(data.jsObjVariable) =="array"){
     if(data.type == "product" & getType(data.jsObjVariable[0]) == "object") data.jsObjVariable = data.jsObjVariable.slice(0,1);
-        if(data.PrdMappingMode == "manual" & getType(data.jsObjVariable[0]) == "object"){
+    if(data.PrdMappingMode == "manual" & getType(data.jsObjVariable[0]) == "object"){
 
-        // get prdref first on parameters mapping table
-        var prdref_index = data.prd_ObjectTable.map(function(o) { return o.parameter; }).indexOf("prdref");
-        if(prdref_index != -1){
-          data.prd_ObjectTable = move(data.prd_ObjectTable,0,prdref_index);
-          
-          data.jsObjVariable.forEach(function(el){
-            data.prd_ObjectTable.forEach(function(i){
+      // get prdref first on parameters mapping table
+      var prdref_index = data.prd_ObjectTable.map(function(o) { return o.parameter; }).indexOf("prdref");
+      if(prdref_index != -1){
+        data.prd_ObjectTable = move(data.prd_ObjectTable,0,prdref_index);
+
+        data.jsObjVariable.forEach(function(el){
+
+          data.prd_ObjectTable.forEach(function(i){
+            if(i.match_mode_val == "fix_val"){
+              params.push(i.parameter,i.js_key_target.toString());
+            }
+            else{
               var k = i.js_key_target;
               params.push(i.parameter, el[k]);
-            });
+            }
           });
-        }
+        });
       }
-      else {
-        // turn object into a single flat array
-        data.jsObjVariable = JSON.parse(JSON.stringify(data.jsObjVariable).split(":").join(",").split("{").join("").split("}").join(""));
-        params = params.concat(data.jsObjVariable);
-      }
+    }
+    else {
+      // turn object into a single flat array
+      data.jsObjVariable = JSON.parse(JSON.stringify(data.jsObjVariable).split(":").join(",").split("{").join("").split("}").join(""));
+      params = params.concat(data.jsObjVariable);
+    }
   }
 }
 
@@ -1336,23 +1398,61 @@ if(data.userTable){
 // From parameter
 if( data.from ) params.push("from", data.from);
 
+//generating a tag id
+var idTagStr = data.type + "_gtm_" + data.gtmTagId + "_" + data.gtmEventId;
+params.push("tc",idTagStr);
+
+// Custom Advanced Parameters
+if( data.custom_advanced_params) {
+  const reducer_cust_adv_prm = (ac, val) => ac.concat([val.cust_adv_parameter,val.cust_adv_value]);
+  params = params.concat(data.custom_advanced_params.reduce(reducer_cust_adv_prm, []));
+}
+
 // Remove default mathching values custom var gtm
 if( data.set_DeleteMatch ) {
   params = params.map(function(k,i){
-    if( k.indexOf( data.kw_DeleteMatch ) != -1 && i%2 == 1) return "";
+    if( k.toString().indexOf( data.kw_DeleteMatch ) != -1 && i%2 == 1) return "";
     return k;
   });
 }
 
 
-function call(){
+const onSuccess = () => { 
+  log('(Tag ID ',data.gtmTagId,') ea.js successfully loaded !');
+  log('(Tag ID ',data.gtmTagId,') Cooking Time! Data formatting...');
+  log('(Tag ID ',data.gtmTagId,') Et Voilà! Datalayer converted and send to ea.js as :',params);
   callInWindow( 'EA_collector' , params);
+
+  log('(Tag ID ',data.gtmTagId,') The function EA_collector() has fired. You should see the call now');
+
+
+  log('(Tag ID ',data.gtmTagId,') Thanks for using the debug mode. The Eulerian Team');
   data.gtmOnSuccess();
-}
+};
+
+const onFailure = () => {
+  log('(Tag ID ',data.gtmTagId,') ea.js load failed because the ressource is missing. Please try to manually load ea.js. If you just declared your tracking domain, please try again tomorrow (configuration can take up to 48hours)');
+  log('(Tag ID ',data.gtmTagId,') Thanks for using the debug mode. The Eulerian Team');
+  data.gtmOnFailure();
+};
 
 const url = 'https://'+ encodeUri(trackingDomain) +'/ea.js';
-if(data.debug_mode)log("params",params);
-injectScript(url, call, data.gtmOnFailure, url);
+
+
+if (queryPermission('inject_script', url)) {
+  log('(Tag ID ',data.gtmTagId,')',trackingDomain, "successfully matched permission.");
+  log('(Tag ID ',data.gtmTagId,') Now loading ea.js in your browser from', url);
+  injectScript(url, onSuccess, onFailure, url);
+} else {
+  log('(Tag ID ',data.gtmTagId,') ea.js load failed due to permission mismatch. How to fix it?');
+  log("1 - Go to GTM: Template > Eulerian Analytics > Permissions > Inject Script");
+  log('2 - replace "https://*.eulerian.net/" by "https://*.yourdomain.com/" (last slash is required)');
+  log("3 - Save and try again from preview or after publication");
+  log("et voilà!");
+  log("> Still not working? Ouch, Ok... don't even worry and pay attention to your webcam. \"That gentlemen is a standard-issue neuralyzer, but you are not gonna remember that.[Neuralyzer flashing] You will now contact Eulerian Support, pretty sure they can help you with this\"");
+  log('(Tag ID ',data.gtmTagId,') Thanks for using the debug mode. The Eulerian Team');
+  data.gtmOnFailure();
+}
 
 
 ___WEB_PERMISSIONS___
@@ -1369,7 +1469,7 @@ ___WEB_PERMISSIONS___
           "key": "environments",
           "value": {
             "type": 1,
-            "string": "all"
+            "string": "debug"
           }
         }
       ]
