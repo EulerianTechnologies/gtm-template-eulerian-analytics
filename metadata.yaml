@@ -15,6 +15,8 @@
 homepage: "https://eulerian.com"
 documentation: "https://github.com/EulerianTechnologies/gtm-template-eulerian-analytics#readme"
 versions:
+  - sha: f0576e70e263d53f89fb03456b5e61167d340d9f
+    changeNotes: implement enopagedt
   - sha: 413755055a98a60af0f4869c25959d795603404c
     changeNotes: fix issue #1
   - sha: fd864c43a52c47d41568b802de0edb61e2ac13b2
