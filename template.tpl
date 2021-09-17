@@ -1112,13 +1112,15 @@ ___TEMPLATE_PARAMETERS___
                 "name": "disable_pageview",
                 "checkboxText": "Do not count the page view event in the reporting",
                 "simpleValueType": true,
-                "enablingConditions": []
+                "enablingConditions": [],
+                "alwaysInSummary": false
               },
               {
                 "type": "CHECKBOX",
                 "name": "disable_activation",
                 "checkboxText": "Do not fire server-server connectors (S2S) and tags (TMS) on this hit",
-                "simpleValueType": true
+                "simpleValueType": true,
+                "alwaysInSummary": false
               },
               {
                 "type": "CHECKBOX",
@@ -1188,6 +1190,15 @@ ___TEMPLATE_PARAMETERS___
                 "name": "from",
                 "displayName": "Eulerian site",
                 "simpleValueType": true
+              },
+              {
+                "type": "SELECT",
+                "name": "custom_var_GTM",
+                "displayName": "Add a custom array of parameters to Eulerian Datalayer",
+                "macrosInSelect": true,
+                "selectItems": [],
+                "simpleValueType": true,
+                "notSetText": "-- Not set --"
               }
             ]
           }
@@ -1407,6 +1418,11 @@ if( data.custom_advanced_params) {
   const reducer_cust_adv_prm = (ac, val) => ac.concat([val.cust_adv_parameter,val.cust_adv_value]);
   params = params.concat(data.custom_advanced_params.reduce(reducer_cust_adv_prm, []));
 }
+
+if( getType(data.custom_var_GTM) == "array" ) {
+  params = params.concat(data.custom_var_GTM);
+}
+
 
 // Remove default mathching values custom var gtm
 if( data.set_DeleteMatch ) {
