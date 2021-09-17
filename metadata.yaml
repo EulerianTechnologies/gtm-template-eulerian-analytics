@@ -15,6 +15,8 @@
 homepage: "https://eulerian.com"
 documentation: "https://github.com/EulerianTechnologies/gtm-template-eulerian-analytics#readme"
 versions:
+  - sha: cc4ba13e0154b042f4892eb5b1aaf88d5e87b219
+    changeNotes: adding support for custom GTM variable
   - sha: f0576e70e263d53f89fb03456b5e61167d340d9f
     changeNotes: implement enopagedt
   - sha: 413755055a98a60af0f4869c25959d795603404c
