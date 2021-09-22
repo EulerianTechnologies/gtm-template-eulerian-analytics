@@ -44,7 +44,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "REGEX",
             "args": [
-              "(https?://)?[a-zA-Z0-9-]+\\.[a-zA-Z0-9-]+\\.[a-zA-Z0-9]{1,4}"
+              "(https?://)?([a-zA-Z0-9-]*\\.){1,2}[a-zA-Z0-9-]*\\.[a-zA-Z0-9]{1,4}"
             ],
             "errorMessage": "the format should be like \"my.domain.com\"",
             "enablingConditions": []
