@@ -1,4 +1,6 @@
-# Eulerian Analytics Tracking
+# Eulerian Analytics Tracking - Advanced
+
+This is the advanced plugin for complex set-up and installation.
 
 ## Description
 
